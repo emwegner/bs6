@@ -4,23 +4,94 @@
 #include <atomic>
 #include <condition_variable>
 #include <queue>
+#include <iostream>
+#include <fstream>
+#include <regex>
+
+//https://github.com/kshru9/Web-Crawler
+
 using namespace std;
 
+queue<string> urlQueue;
+int besichtigteSeiten;
+int aktuelleThreads;
 
-int main() {
+bool checkIfValidURL(string adress) {
+    // mit regex checken ob es richtigem format entspricht
+    const regex pattern("((http|https)://)(www.)?[a-zA-Z0-9@:%._\\+~#?&//=]{2,256}\\.[a-z]{2,6}\\b([-a-zA-Z0-9@:%._\\+~#?&//=]*)");
+    if (adress.empty()) {
+        return false;
+    }
+    if(regex_match(adress, pattern)) {
+        return true;
+    }
+    else {
+        return false;
+    }
+}
+
+
+
+void reader() {
+    fstream file;
+    string adress;
+    file.open("file.txt");
+    if(file.is_open()) {
+        while(getline(file, adress)) {
+            if(checkIfValidURL(adress)) {
+                urlQueue.push(adress);
+            }
+        }
+    } else {
+        cout << "Fehler beim Öffnen der Datei" << endl;
+    }
+
+    terminate();
+}
+
+void createThread() {
+    if(!urlQueue.empty()) {
+    //    string seite = urlQueue.pop();
+        aktuelleThreads++;
+        besichtigteSeiten++;
+
+        // create thread
+   //    thread *th = new thread(childThread, seite, besichtigteSeiten.value());
+   //     (*th).detach();
+    }
+}
+
+
+void getHTML() {
+    //get website html and put it in file
+    //filename : <i>_<j>_<server host>.html gespeichert werden (für Threads mit Index 1 ≤ i ≤ n
+    //und Dateien mit Index 1 ≤ j ≤ m).
+
+    ofstream outfile ("test.txt");
+
+    outfile << "my text here!" << endl;
+
+    outfile.close();
+
+}
+
+void childThread(string adress, int threadnr) {
+
+}
+
+
+
+
+int main(int argc, char* argv[]) {
+
     cout << "Hello, World!" << endl;
-    queue<string> my_queue;
+    thread t1(reader);
+
+    t1.join();
+
+
     return 0;
 }
-
-//erstellen des thread
-template < class Function, class ... Args > explicit thread (Function && f, Args &&... args);
-
-
-void readFileToQueue() {
-    
-}
-
 
 /*
   thread mit terminate() beenden am ende der funktion;
